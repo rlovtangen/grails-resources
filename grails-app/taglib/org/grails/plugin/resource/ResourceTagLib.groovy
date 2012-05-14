@@ -17,6 +17,7 @@ import org.codehaus.groovy.grails.web.taglib.exceptions.GrailsTagException
  * @author Luke Daley (ld@ldaley.com)
  */
 class ResourceTagLib {
+	def grailsApplication
     static namespace = "r"
     
     static REQ_ATTR_PREFIX_PAGE_FRAGMENTS = 'resources.plugin.page.fragments'
@@ -139,8 +140,13 @@ class ResourceTagLib {
         if (!type) {
             type = FilenameUtils.getExtension(urlForExtension)
         }
-        
-        def typeInfo = SUPPORTED_TYPES[type]?.clone()
+		def typeInfo = null
+        if (grailsApplication.config.grails.resources.supportedTypesOverrides) {
+			typeInfo = grailsApplication.config.grails.resources.supportedTypesOverrides[type]?.clone()
+		}
+		if (!typeInfo) {
+			typeInfo = SUPPORTED_TYPES[type]?.clone()
+		}
         if (!typeInfo) {
             throwTagError "I can't work out the type of ${uri} with type [${type}]. Please check the URL, resource definition or specify [type] attribute"
         }
